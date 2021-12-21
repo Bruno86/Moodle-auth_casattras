@@ -15,7 +15,7 @@ Requirements
 *  A CAS server that supports attribute-release via one of...
     1. The SAML 1.1 protocol
     2. The CAS 2.0 protocol with the serviceValidate JSP customized to include attributes
-    3. [coming soon] The CAS 3.0 protocol
+    3. The CAS 3.0 protocol
 
 Installation
 ------------
@@ -24,7 +24,7 @@ Installation
     This can be accomplished with
 
             cd /path/to/my/moodle/
-            git clone https://github.com/middlebury/Moodle-auth_casattras.git auth/casattras
+            git clone https://github.com/Bruno86/Moodle-auth_casattras.git auth/casattras
 
 1. Log into Moodle as a site adminstrator. You should be prompted to run a database update to install the plugin.
 
