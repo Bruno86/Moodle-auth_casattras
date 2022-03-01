@@ -30,7 +30,7 @@ if (!defined('MOODLE_INTERNAL')) {
 }
 
 require_once($CFG->libdir.'/authlib.php');
-require_once($CFG->dirroot.'/auth/cas/CAS/vendor/apereo/phpcas/CAS.php');
+require_once($CFG->dirroot.'/auth/cas/CAS/vendor/autoload.php');
 
 /**
  * CAS-Attras authentication plugin.
