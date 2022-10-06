@@ -264,8 +264,9 @@ class auth_plugin_casattras extends auth_plugin_base {
      */
     public function prelogout_hook() {
         global $CFG;
-
-        if (!empty($this->config->logoutcas)) {
+        global $USER;
+        
+        if ($USER->auth === $this->authtype && !empty($this->config->logoutcas)) {
             $backurl = $CFG->wwwroot;
             $this->init_cas();
             if ($this->config->logoutreturnurl) {
