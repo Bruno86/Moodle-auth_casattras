@@ -268,7 +268,11 @@ class auth_plugin_casattras extends auth_plugin_base {
         if (!empty($this->config->logoutcas)) {
             $backurl = $CFG->wwwroot;
             $this->init_cas();
-            phpCAS::logoutWithURL($backurl);
+            if ($this->config->logoutreturnurl) {
+                phpCAS::logoutWithRedirectService($this->config->logoutreturnurl);
+            } else {
+                phpCAS::logoutWithRedirectService($backurl);
+            }
         }
     }
 
