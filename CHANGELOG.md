@@ -7,6 +7,11 @@
 - Migrate CI builds to Github Actions
 - Drop support for 3.7-3.8
 
+## 3.8.0 (November 22, 2022)
+
+ - Fixed bug with new phpCAS 1.6
+ - Fixed bug with logOut (prelogout_hook)
+
 ## 3.7.2 (July 10, 2020)
 
 - Fixed bug with logo when using multi-authentication (thanks @jogemu)

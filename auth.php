@@ -116,20 +116,45 @@ class auth_plugin_casattras extends auth_plugin_base {
 
         // Make sure phpCAS doesn't try to start a new PHP session when connecting to the CAS server.
         if ($this->config->proxycas) {
-            phpCAS::proxy(
-                constant($this->config->casversion),
-                $this->config->hostname,
-                (int) $this->config->port,
-                $this->config->baseuri,
-                false);
+            if (phpCAS::getVersion() >= '1.6.0') {
+                phpCAS::proxy(
+                    constant($this->config->casversion),
+                    $this->config->hostname,
+                    (int) $this->config->port,
+                    $this->config->baseuri,
+                    $CFG->wwwroot,
+                    false
+                );
+            } else {
+                phpCAS::proxy(
+                    constant($this->config->casversion),
+                    $this->config->hostname,
+                    (int) $this->config->port,
+                    $this->config->baseuri,
+                    false
+                );
+            }
         } else {
-            phpCAS::client(
-                constant($this->config->casversion),
-                $this->config->hostname,
-                (int) $this->config->port,
-                $this->config->baseuri,
-                false);
+            if (phpCAS::getVersion() >= '1.6.0') {
+                phpCAS::client(
+                    constant($this->config->casversion),
+                    $this->config->hostname,
+                    (int) $this->config->port,
+                    $this->config->baseuri,
+                    $CFG->wwwroot,
+                    false
+                );
+            } else {
+                phpCAS::client(
+                    constant($this->config->casversion),
+                    $this->config->hostname,
+                    (int) $this->config->port,
+                    $this->config->baseuri,
+                    false
+                );
+            }
         }
+
         self::$casinitialized = true;
 
         // If Moodle is configured to use a proxy, phpCAS needs some curl options set.
@@ -265,7 +290,7 @@ class auth_plugin_casattras extends auth_plugin_base {
     public function prelogout_hook() {
         global $CFG;
         global $USER;
-        
+
         if ($USER->auth === $this->authtype && !empty($this->config->logoutcas)) {
             $backurl = $CFG->wwwroot;
             $this->init_cas();
