@@ -31,6 +31,7 @@ if (!defined('MOODLE_INTERNAL')) {
 
 require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->dirroot.'/auth/cas/CAS/vendor/autoload.php');
+require_once($CFG->dirroot.'/auth/cas/CAS/vendor/apereo/phpcas/source/CAS.php');
 
 /**
  * CAS-Attras authentication plugin.
@@ -114,6 +115,14 @@ class auth_plugin_casattras extends auth_plugin_base {
             return;
         }
 
+        // See MDL-75479
+        // Form the base URL of the server with just the protocol and hostname.
+        $serverurl = new moodle_url("/");
+        $servicebaseurl = $serverurl->get_scheme() ? $serverurl->get_scheme() . "://" : '';
+        $servicebaseurl .= $serverurl->get_host();
+        // Add the port if set.
+        $servicebaseurl .= $serverurl->get_port() ? ':' . $serverurl->get_port() : '';
+
         // Make sure phpCAS doesn't try to start a new PHP session when connecting to the CAS server.
         if ($this->config->proxycas) {
             if (phpCAS::getVersion() >= '1.6.0') {
@@ -122,7 +131,7 @@ class auth_plugin_casattras extends auth_plugin_base {
                     $this->config->hostname,
                     (int) $this->config->port,
                     $this->config->baseuri,
-                    $CFG->wwwroot,
+                    $servicebaseurl,
                     false
                 );
             } else {
@@ -141,7 +150,7 @@ class auth_plugin_casattras extends auth_plugin_base {
                     $this->config->hostname,
                     (int) $this->config->port,
                     $this->config->baseuri,
-                    $CFG->wwwroot,
+                    $servicebaseurl,
                     false
                 );
             } else {
@@ -203,8 +212,9 @@ class auth_plugin_casattras extends auth_plugin_base {
         $username = optional_param('username', '', PARAM_RAW);
         $ticket = optional_param('ticket', '', PARAM_RAW);
         if (!empty($username)) {
-            if (isset($SESSION->wantsurl) && (strstr($SESSION->wantsurl, 'ticket') ||
-                                              strstr($SESSION->wantsurl, 'NOCAS'))) {
+            if (isset($SESSION->wantsurl)
+                && (strstr($SESSION->wantsurl, 'ticket') || strstr($SESSION->wantsurl, 'NOCAS'))
+            ) {
                 unset($SESSION->wantsurl);
             }
             return;
@@ -257,7 +267,28 @@ class auth_plugin_casattras extends auth_plugin_base {
     }
 
     /**
-     * Read user information from external database and returns it as array().
+     * Returns user attribute mappings between Moodle and the CAS server.
+     *
+     * @return array
+     */
+    protected function attributes() {
+        $moodleattributes = array();
+        $customfields = $this->get_custom_user_profile_fields();
+        if (!empty($customfields) && !empty($this->userfields)) {
+            $userfields = array_merge($this->userfields, $customfields);
+        } else {
+            $userfields = $this->userfields;
+        }
+        foreach ($userfields as $field) {
+            if (!empty($this->config->{"field_map_$field"})) {
+                $moodleattributes[$field] = $this->config->{"field_map_$field"};
+            }
+        }
+        return $moodleattributes;
+    }
+
+    /**
+     * Read user information from cas server and returns it as array().
      * Function should return all information available. If you are saving
      * this information to moodle user-table you should honour synchronisation flags
      *
@@ -273,13 +304,9 @@ class auth_plugin_casattras extends auth_plugin_base {
         $casattras = phpCAS::getAttributes();
         $moodleattras = array();
 
-        foreach ($this->userfields as $field) {
-            $casfield = $this->config->{"field_map_$field"};
-            if (!empty($casfield) && !empty($casattras[$casfield])) {
-                $moodleattras[$field] = $casattras[$casfield];
-            }
+        foreach ($this->attributes() as $key => $field) {
+            $moodleattras[$key] = $casattras[$field];
         }
-
         return $moodleattras;
     }
 

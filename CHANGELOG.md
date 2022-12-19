@@ -1,16 +1,16 @@
 # Changelog
 
-## Unreleased
+## 4.1.0 (December 6, 2022)
 
+- [BUGFIX] Update for compatibility with phpCAS 1.6.0
+
+## 4.0.0 (April 15, 2022)
+
+- [FEATURE] Add support for custom profile field mapping
 - Change default branch to "main"
 - Update CI tool to version 3
 - Migrate CI builds to Github Actions
-- Drop support for 3.7-3.8
-
-## 3.8.0 (November 22, 2022)
-
- - Fixed bug with new phpCAS 1.6
- - Fixed bug with logOut (prelogout_hook)
+- Drop support for 3.7-3.11
 
 ## 3.7.2 (July 10, 2020)
 
